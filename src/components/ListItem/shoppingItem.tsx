@@ -1,14 +1,15 @@
 import { ShoppingItemProps } from "@/types/itemProps";
 import { Checkbox } from "../ui/checkbox";
 import Tag from "./tag";
-import { ItemActions } from "./deleteItem";
+import { ItemActions } from "./itemActions";
+import unitType from "@/utils/unit/unitType";
 
 // Defines the properties for the ShoppingItem component with onFunctions to toggle completion, edit, and delete the item
 interface ShoppingItemComponentProps {
   item: ShoppingItemProps;
-  onToggle: (id: string, completed: boolean) => void;
-  onEdit: (id: string, updatedItem: Omit<ShoppingItemProps, "id" | "isCompleted">) => void;
-  onDelete: (id: string) => void;
+  onToggle: (id: number, completed: boolean) => void;
+  onEdit: (id: number, updatedItem: Omit<ShoppingItemProps, "id" | "checked">) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 }
 
 export default function ShoppingItem({ item, onToggle, onEdit, onDelete }: ShoppingItemComponentProps) {
@@ -17,21 +18,21 @@ export default function ShoppingItem({ item, onToggle, onEdit, onDelete }: Shopp
   };
 
   return (
-      <div className={`flex w-full items-center gap-3 rounded-lg bg-gray-400 p-4 text-white transition-all duration-200 ${item.isCompleted ? 'opacity-60' : 'opacity-100'}`}>
+      <div className={`flex w-full items-center gap-3 rounded-lg bg-gray-400 p-4 text-white transition-all duration-200 ${item.checked ? 'opacity-60' : 'opacity-100'}`}>
         {/* Checkbox to mark item as completed */}
         <Checkbox 
           className="shrink-0" 
-          checked={item.isCompleted}
+          checked={item.checked}
           onCheckedChange={handleCheckboxChange}
         />
 
         {/* Item name and quantity */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className={`truncate font-medium transition-all ${item.isCompleted ? 'line-through text-gray-200' : 'text-white'}`}>
+          <span className={`truncate font-medium transition-all ${item.checked ? 'line-through text-gray-200' : 'text-white'}`}>
             {item.name}
           </span>
           <span className="text-sm text-gray-200">
-            {`${item.quantity} ${item.quantity === "1" ? 'Unidade' : 'Unidades'}`}
+            {`${unitType(item.unit, item.quantity)}`}
           </span>
         </div>
 

@@ -7,20 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SelectCategory } from "./SelectCategory";
 import { QuantityInput } from "./quantityInput";
+import { ShoppingItemProps } from "@/types/itemProps";
 
 interface ShoppingFormProps {
-  onAddItem: (item: {
-    name: string;
-    quantity: string;
-    unit: string;
-    category: string;
-  }) => void;
+  onAddItem: (item: Omit<ShoppingItemProps, "id" | "checked">) => void;
 }
 
 export function ShoppingForm({ onAddItem }: ShoppingFormProps) {
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState<string>("1"); 
-  const [unit, setUnit] = useState<string>("UN");
+  const [quantity, setQuantity] = useState<number>(1);
+  const [unit, setUnit] = useState<string>("");
   const [category, setCategory] = useState<string>("");
 
   // Handles form submission Validates inputs and calls onAddItem callback
@@ -28,51 +24,52 @@ export function ShoppingForm({ onAddItem }: ShoppingFormProps) {
     e.preventDefault();
 
     // Validate required fields
-    if (!name.trim() || !category || parseFloat(quantity) <= 0) {
-      alert("Por favor, preencha o Item, a Categoria e garanta que a Quantidade seja maior que zero.");
+    if (!name.trim() || !unit || !category || quantity <= 0) {
+      alert("Por favor, preencha o Item, a Categoria e garanta que a Quantidade e a Unidade sejam preenchidas corretamente.");
       return;
     }
     
     // Create new item object
     const newItem = {
       name: name.trim(),
-      quantity,
-      unit,
+      quantity: Number(quantity),
+      unit: unit.toLowerCase(),
       category,
     };
 
-    onAddItem(newItem); 
+    // Call the onAddItem prop with the new item
+    onAddItem(newItem);
 
     // Reset form fields
     setName("");
-    setQuantity("1");
-    setUnit("UN");
+    setQuantity(1);
+    setUnit("");
     setCategory("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap justify-center items-end gap-3 sm:gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-wrap justify-center items-center gap-3 sm:gap-4">
       {/* Item name input */}
       <div className="flex flex-col flex-grow min-w-[120px]">
-        <label htmlFor="item-name" className="text-gray-200 text-sm mb-1">
+        <label htmlFor="item-name">
           Item
         </label>
         <Input
           id="item-name"
-          placeholder=""
+          placeholder="Escreva o nome do item"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="bg-gray-500 border-gray-400 h-10"
+          className="h-9"
         />
       </div>
 
       <div className="flex gap-4 items-baseline-last min-w-[120px] overflow-x-auto">
         {/* Quantity and unit input */}
         <div className="flex flex-col">
-          <label className="text-gray-200 text-sm mb-1">Quantidade</label>
+          <label>Quantidade</label>
           <QuantityInput
             quantityValue={quantity}
-            onQuantityChange={(e) => setQuantity(e.target.value)}
+            onQuantityChange={(e) => setQuantity(Number(e.target.value))}
             unitValue={unit}
             onUnitChange={setUnit}
           />
@@ -88,7 +85,7 @@ export function ShoppingForm({ onAddItem }: ShoppingFormProps) {
           type="submit"
           size="icon" 
           className="h-10 w-10 bg-purple hover:bg-purple-dark shrink-0" 
-          disabled={!name.trim() || !category || parseFloat(quantity) <= 0}
+          disabled={!name.trim() || !unit || !category || quantity <= 0}
         >
           <Plus className="h-5 w-5" />
         </Button>

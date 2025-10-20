@@ -1,9 +1,9 @@
 // Defines the properties of a shopping item
 export interface ShoppingItemProps {
-  id: string;
+  id: number;
   name: string;
-  quantity: string;
+  quantity: number;
   unit: string;
   category: string;
-  isCompleted: boolean;
+  checked?: boolean;
 }
